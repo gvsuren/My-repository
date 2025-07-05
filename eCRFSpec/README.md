@@ -1,1 +1,0 @@
-#eCRFSpec folder placeholder
