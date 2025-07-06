@@ -82,27 +82,37 @@ export const Dashboard: React.FC<DashboardProps> = ({
         yPosition += 15;
       });
 
-      // Schedule of Events
+      // Schedule of Events Matrix
       doc.addPage();
       doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
-      doc.text('Schedule of Events', 20, 30);
+      doc.text('Schedule of Events Matrix', 20, 30);
 
-      const scheduleData = specification.scheduleOfEvents.map(event => [
-        event.visitNumber.toString(),
-        event.visitName,
-        event.visitWindow,
-        event.timepoint,
-        event.forms.length.toString()
-      ]);
+      // Create matrix data for PDF
+      const allForms = Array.from(new Set(specification.forms.map(form => form.name)));
+      const allVisits = specification.scheduleOfEvents.map(event => `V${event.visitNumber}`);
+      
+      const matrixData = allForms.map(formName => {
+        const row = [formName];
+        allVisits.forEach(visit => {
+          const visitNumber = parseInt(visit.substring(1));
+          const event = specification.scheduleOfEvents.find(e => e.visitNumber === visitNumber);
+          const hasForm = event?.forms.some(f => f.includes(formName)) ? 'X' : '';
+          row.push(hasForm);
+        });
+        return row;
+      });
 
       (doc as any).autoTable({
-        head: [['Visit #', 'Visit Name', 'Window', 'Timepoint', 'Forms']],
-        body: scheduleData,
+        head: [['Form', ...allVisits]],
+        body: matrixData,
         startY: 40,
-        styles: { fontSize: 9, cellPadding: 3 },
+        styles: { fontSize: 8, cellPadding: 2, halign: 'center' },
         headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [248, 250, 252] }
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+          0: { halign: 'left', cellWidth: 40 }
+        }
       });
 
       // Field Mappings Table
