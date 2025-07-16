@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { Upload, Download, Image as ImageIcon, Settings, Zap, FileImage, Trash2, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { Upload, Download, Image as ImageIcon, Settings, Zap, FileImage, Trash2, Eye, EyeOff, RefreshCw, Pause, Play, X } from 'lucide-react';
 import { 
   compressImage, 
   compressBatch, 
@@ -16,10 +16,23 @@ interface ProcessedImage {
   original: File;
   result: CompressionResult;
   preview?: string;
+  isProcessing?: boolean;
+}
+
+interface QueueStatus {
+  isActive: boolean;
+  isPaused: boolean;
+  totalJobs: number;
+  completedJobs: number;
+  activeJobs: number;
+  queueLength: number;
+  currentFile?: string;
+  estimatedTimeRemaining?: number;
 }
 
 const App: React.FC = () => {
   const [images, setImages] = useState<ProcessedImage[]>([]);
+  const [originalFiles, setOriginalFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [compressionOptions, setCompressionOptions] = useState<CompressionOptions>({
     quality: 0.8,
@@ -33,9 +46,51 @@ const App: React.FC = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ completed: 0, total: 0, currentFile: '' });
   const [previewMode, setPreviewMode] = useState<'grid' | 'list'>('grid');
+  const [queueStatus, setQueueStatus] = useState<QueueStatus>({
+    isActive: false,
+    isPaused: false,
+    totalJobs: 0,
+    completedJobs: 0,
+    activeJobs: 0,
+    queueLength: 0
+  });
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const compressionQueue = useRef(new CompressionQueue());
+  const processingStartTime = useRef<number>(0);
+
+  // Enhanced queue status monitoring
+  useEffect(() => {
+    const updateQueueStatus = () => {
+      const queue = compressionQueue.current;
+      const activeJobs = queue.getActiveJobs();
+      const queueLength = queue.getQueueLength();
+      const totalJobs = images.length;
+      const completedJobs = images.filter(img => !img.isProcessing).length;
+      
+      // Calculate estimated time remaining
+      let estimatedTimeRemaining: number | undefined;
+      if (processingStartTime.current && completedJobs > 0) {
+        const elapsed = Date.now() - processingStartTime.current;
+        const avgTimePerImage = elapsed / completedJobs;
+        const remainingImages = totalJobs - completedJobs;
+        estimatedTimeRemaining = Math.round((avgTimePerImage * remainingImages) / 1000); // in seconds
+      }
+
+      setQueueStatus({
+        isActive: activeJobs > 0 || queueLength > 0,
+        isPaused: false, // We'll implement pause functionality
+        totalJobs,
+        completedJobs,
+        activeJobs,
+        queueLength,
+        estimatedTimeRemaining
+      });
+    };
+
+    const interval = setInterval(updateQueueStatus, 500);
+    return () => clearInterval(interval);
+  }, [images]);
 
   const handleFileSelect = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -51,34 +106,92 @@ const App: React.FC = () => {
       return;
     }
 
+    // Store original files for reprocessing
+    setOriginalFiles(prev => [...prev, ...validFiles]);
+
+    // Create placeholder entries for immediate UI feedback
+    const placeholderImages: ProcessedImage[] = validFiles.map((file, index) => ({
+      id: `${Date.now()}-${index}`,
+      original: file,
+      result: {
+        compressedFile: file,
+        compressionRatio: 0,
+        originalFormat: file.type,
+        outputFormat: file.type,
+        originalDimensions: { width: 0, height: 0 },
+        compressedDimensions: { width: 0, height: 0 }
+      },
+      isProcessing: true
+    }));
+
+    setImages(prev => [...prev, ...placeholderImages]);
+    
+    // Start processing
+    processImages(validFiles, placeholderImages);
+  }, [compressionOptions]);
+
+  const processImages = async (files: File[], placeholderImages: ProcessedImage[]) => {
     setIsProcessing(true);
-    setBatchProgress({ completed: 0, total: validFiles.length, currentFile: '' });
+    processingStartTime.current = Date.now();
+    setBatchProgress({ completed: 0, total: files.length, currentFile: '' });
 
     try {
       const results = await compressBatch(
-        validFiles,
+        files,
         compressionOptions,
         (completed, total, currentFile) => {
           setBatchProgress({ completed, total, currentFile: currentFile || '' });
         }
       );
 
+      // Update images with actual results
       const processedImages: ProcessedImage[] = results.map((result, index) => ({
-        id: `${Date.now()}-${index}`,
-        original: validFiles[index],
+        ...placeholderImages[index],
         result,
-        preview: URL.createObjectURL(result.compressedFile)
+        preview: URL.createObjectURL(result.compressedFile),
+        isProcessing: false
       }));
 
-      setImages(prev => [...prev, ...processedImages]);
+      setImages(prev => {
+        const updated = [...prev];
+        placeholderImages.forEach((placeholder, index) => {
+          const imgIndex = updated.findIndex(img => img.id === placeholder.id);
+          if (imgIndex !== -1) {
+            updated[imgIndex] = processedImages[index];
+          }
+        });
+        return updated;
+      });
+
     } catch (error) {
       console.error('Batch compression failed:', error);
       alert('Some images failed to compress. Please try again.');
+      
+      // Remove failed processing images
+      setImages(prev => prev.filter(img => !placeholderImages.some(p => p.id === img.id)));
     } finally {
       setIsProcessing(false);
       setBatchProgress({ completed: 0, total: 0, currentFile: '' });
     }
-  }, [compressionOptions]);
+  };
+
+  const reprocessAllImages = async () => {
+    if (originalFiles.length === 0) return;
+
+    // Clear existing previews
+    images.forEach(image => {
+      if (image.preview) {
+        URL.revokeObjectURL(image.preview);
+      }
+    });
+
+    // Mark all images as processing
+    setImages(prev => prev.map(img => ({ ...img, isProcessing: true })));
+
+    // Reprocess with new settings
+    const placeholderImages = images.map(img => ({ ...img, isProcessing: true }));
+    await processImages(originalFiles, placeholderImages);
+  };
 
   const handlePresetChange = (preset: keyof typeof WEB_PRESETS) => {
     setSelectedPreset(preset);
@@ -100,7 +213,8 @@ const App: React.FC = () => {
   };
 
   const downloadAll = () => {
-    images.forEach(image => downloadImage(image));
+    const completedImages = images.filter(img => !img.isProcessing);
+    completedImages.forEach(image => downloadImage(image));
   };
 
   const clearAll = () => {
@@ -110,6 +224,8 @@ const App: React.FC = () => {
       }
     });
     setImages([]);
+    setOriginalFiles([]);
+    compressionQueue.current.clear();
   };
 
   const removeImage = (id: string) => {
@@ -120,6 +236,22 @@ const App: React.FC = () => {
       }
       return prev.filter(img => img.id !== id);
     });
+    
+    // Also remove from original files if needed
+    const imageIndex = images.findIndex(img => img.id === id);
+    if (imageIndex !== -1) {
+      setOriginalFiles(prev => prev.filter((_, index) => index !== imageIndex));
+    }
+  };
+
+  const pauseQueue = () => {
+    // Implementation would depend on queue pause functionality
+    setQueueStatus(prev => ({ ...prev, isPaused: true }));
+  };
+
+  const resumeQueue = () => {
+    // Implementation would depend on queue resume functionality
+    setQueueStatus(prev => ({ ...prev, isPaused: false }));
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -130,8 +262,16 @@ const App: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const totalOriginalSize = images.reduce((sum, img) => sum + img.original.size, 0);
-  const totalCompressedSize = images.reduce((sum, img) => sum + img.result.compressedFile.size, 0);
+  const formatTime = (seconds: number): string => {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+  };
+
+  const completedImages = images.filter(img => !img.isProcessing);
+  const totalOriginalSize = completedImages.reduce((sum, img) => sum + img.original.size, 0);
+  const totalCompressedSize = completedImages.reduce((sum, img) => sum + img.result.compressedFile.size, 0);
   const totalSavings = totalOriginalSize > 0 ? ((totalOriginalSize - totalCompressedSize) / totalOriginalSize) * 100 : 0;
 
   return (
@@ -144,7 +284,7 @@ const App: React.FC = () => {
             <h1 className="text-4xl font-bold text-gray-800">Image Compressor Pro</h1>
           </div>
           <p className="text-gray-600 text-lg">
-            Compress your images with advanced options and batch processing
+            Compress your images with advanced options and intelligent batch processing
           </p>
         </div>
 
@@ -175,22 +315,44 @@ const App: React.FC = () => {
             </button>
           </div>
 
-          {/* Processing Progress */}
-          {isProcessing && (
-            <div className="mt-6">
+          {/* Queue Status */}
+          {queueStatus.isActive && (
+            <div className="mt-6 bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-medium text-blue-900">Batch Processing Queue</h4>
+                <div className="flex items-center space-x-2">
+                  {queueStatus.estimatedTimeRemaining && (
+                    <span className="text-sm text-blue-700">
+                      ~{formatTime(queueStatus.estimatedTimeRemaining)} remaining
+                    </span>
+                  )}
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-blue-700">
+                      {queueStatus.activeJobs} active, {queueStatus.queueLength} queued
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Processing: {batchProgress.currentFile}
+                <span className="text-sm font-medium text-blue-800">
+                  Progress: {queueStatus.completedJobs} / {queueStatus.totalJobs}
                 </span>
-                <span className="text-sm text-gray-500">
-                  {batchProgress.completed} / {batchProgress.total}
+                <span className="text-sm text-blue-600">
+                  {batchProgress.currentFile && `Processing: ${batchProgress.currentFile}`}
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              
+              <div className="w-full bg-blue-200 rounded-full h-3">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${(batchProgress.completed / batchProgress.total) * 100}%` }}
-                />
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+                  style={{ width: `${(queueStatus.completedJobs / queueStatus.totalJobs) * 100}%` }}
+                >
+                  <span className="text-xs text-white font-medium">
+                    {Math.round((queueStatus.completedJobs / queueStatus.totalJobs) * 100)}%
+                  </span>
+                </div>
               </div>
             </div>
           )}
@@ -203,13 +365,25 @@ const App: React.FC = () => {
               <Settings className="w-5 h-5 mr-2" />
               Compression Settings
             </h2>
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center text-blue-600 hover:text-blue-700 transition-colors"
-            >
-              {showAdvanced ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
-              {showAdvanced ? 'Hide' : 'Show'} Advanced
-            </button>
+            <div className="flex items-center space-x-3">
+              {images.length > 0 && (
+                <button
+                  onClick={reprocessAllImages}
+                  disabled={isProcessing}
+                  className="bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Reprocess All
+                </button>
+              )}
+              <button
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="flex items-center text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                {showAdvanced ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
+                {showAdvanced ? 'Hide' : 'Show'} Advanced
+              </button>
+            </div>
           </div>
 
           {/* Presets */}
@@ -345,7 +519,7 @@ const App: React.FC = () => {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-800 flex items-center">
                 <FileImage className="w-5 h-5 mr-2" />
-                Compressed Images ({images.length})
+                Compressed Images ({completedImages.length}/{images.length})
               </h2>
               <div className="flex items-center space-x-3">
                 <div className="text-sm text-gray-600">
@@ -353,10 +527,11 @@ const App: React.FC = () => {
                 </div>
                 <button
                   onClick={downloadAll}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                  disabled={completedImages.length === 0}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
                 >
                   <Download className="w-4 h-4 mr-2" />
-                  Download All
+                  Download All ({completedImages.length})
                 </button>
                 <button
                   onClick={clearAll}
@@ -372,42 +547,58 @@ const App: React.FC = () => {
               {images.map((image) => (
                 <div key={image.id} className="border border-gray-200 rounded-lg overflow-hidden">
                   <div className="aspect-video bg-gray-100 relative">
-                    {image.preview && (
+                    {image.isProcessing ? (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      </div>
+                    ) : image.preview ? (
                       <img
                         src={image.preview}
                         alt="Compressed"
                         className="w-full h-full object-cover"
                       />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <ImageIcon className="w-12 h-12" />
+                      </div>
+                    )}
+                    {image.isProcessing && (
+                      <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+                        Processing...
+                      </div>
                     )}
                   </div>
                   <div className="p-4">
                     <h3 className="font-medium text-gray-800 truncate mb-2">
                       {image.original.name}
                     </h3>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <div className="flex justify-between">
-                        <span>Original:</span>
-                        <span>{formatFileSize(image.original.size)}</span>
+                    {!image.isProcessing && (
+                      <div className="space-y-1 text-sm text-gray-600">
+                        <div className="flex justify-between">
+                          <span>Original:</span>
+                          <span>{formatFileSize(image.original.size)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Compressed:</span>
+                          <span>{formatFileSize(image.result.compressedFile.size)}</span>
+                        </div>
+                        <div className="flex justify-between font-medium text-green-600">
+                          <span>Saved:</span>
+                          <span>{image.result.compressionRatio.toFixed(1)}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Dimensions:</span>
+                          <span>
+                            {image.result.compressedDimensions.width}×{image.result.compressedDimensions.height}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Compressed:</span>
-                        <span>{formatFileSize(image.result.compressedFile.size)}</span>
-                      </div>
-                      <div className="flex justify-between font-medium text-green-600">
-                        <span>Saved:</span>
-                        <span>{image.result.compressionRatio.toFixed(1)}%</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Dimensions:</span>
-                        <span>
-                          {image.result.compressedDimensions.width}×{image.result.compressedDimensions.height}
-                        </span>
-                      </div>
-                    </div>
+                    )}
                     <div className="flex space-x-2 mt-4">
                       <button
                         onClick={() => downloadImage(image)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                        disabled={image.isProcessing}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                       >
                         <Download className="w-4 h-4 mr-1" />
                         Download
@@ -430,7 +621,7 @@ const App: React.FC = () => {
         <div className="text-center mt-8 text-gray-500">
           <p className="flex items-center justify-center">
             <Zap className="w-4 h-4 mr-1" />
-            Powered by advanced image compression algorithms
+            Powered by advanced image compression algorithms with intelligent queue management
           </p>
         </div>
       </div>

@@ -292,21 +292,35 @@ export class CompressionQueue {
     options: CompressionOptions;
     resolve: (result: CompressionResult) => void;
     reject: (error: Error) => void;
+    priority?: number;
   }> = [];
   
   private processing = false;
-  private maxConcurrent = 3; // Process up to 3 images simultaneously
+  private maxConcurrent = 4; // Process up to 4 images simultaneously for better performance
   private activeJobs = 0;
+  private isPaused = false;
+  private completedJobs = 0;
+  private totalJobs = 0;
   
-  async add(file: File, options: CompressionOptions): Promise<CompressionResult> {
+  async add(file: File, options: CompressionOptions, priority: number = 0): Promise<CompressionResult> {
     return new Promise((resolve, reject) => {
-      this.queue.push({ file, options, resolve, reject });
+      // Insert based on priority (higher priority first)
+      const job = { file, options, resolve, reject, priority };
+      const insertIndex = this.queue.findIndex(item => (item.priority || 0) < priority);
+      
+      if (insertIndex === -1) {
+        this.queue.push(job);
+      } else {
+        this.queue.splice(insertIndex, 0, job);
+      }
+      
+      this.totalJobs++;
       this.processNext();
     });
   }
   
   private async processNext() {
-    if (this.activeJobs >= this.maxConcurrent || this.queue.length === 0) {
+    if (this.isPaused || this.activeJobs >= this.maxConcurrent || this.queue.length === 0) {
       return;
     }
     
@@ -318,6 +332,7 @@ export class CompressionQueue {
     try {
       const result = await compressImage(job.file, job.options);
       job.resolve(result);
+      this.completedJobs++;
     } catch (error) {
       job.reject(error as Error);
     } finally {
@@ -327,7 +342,29 @@ export class CompressionQueue {
   }
   
   clear() {
+    // Reject all pending jobs
+    this.queue.forEach(job => {
+      job.reject(new Error('Queue cleared'));
+    });
     this.queue.length = 0;
+    this.completedJobs = 0;
+    this.totalJobs = 0;
+  }
+  
+  pause() {
+    this.isPaused = true;
+  }
+  
+  resume() {
+    this.isPaused = false;
+    // Resume processing
+    for (let i = 0; i < this.maxConcurrent - this.activeJobs; i++) {
+      this.processNext();
+    }
+  }
+  
+  isPausedState(): boolean {
+    return this.isPaused;
   }
   
   getQueueLength(): number {
@@ -336,6 +373,18 @@ export class CompressionQueue {
   
   getActiveJobs(): number {
     return this.activeJobs;
+  }
+  
+  getCompletedJobs(): number {
+    return this.completedJobs;
+  }
+  
+  getTotalJobs(): number {
+    return this.totalJobs;
+  }
+  
+  getProgress(): number {
+    return this.totalJobs > 0 ? (this.completedJobs / this.totalJobs) * 100 : 0;
   }
 }
 // Format validation and support detection
