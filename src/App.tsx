@@ -121,7 +121,6 @@ const App: React.FC = () => {
     }));
 
     setImages(prev => [...prev, ...uncompressedImages]);
-    setHasCompressed(false); // Reset compression state
   }, []);
 
   const startCompression = async () => {
@@ -339,10 +338,9 @@ const App: React.FC = () => {
           {/* Compression Control */}
           {images.length > 0 && (
             <div className="mt-6 flex items-center justify-center space-x-4">
-              {uncompressedImages.length > 0 && (
+              {uncompressedImages.length > 0 && !isProcessing && (
                 <button
                   onClick={startCompression}
-                  disabled={isProcessing}
                   className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-8 py-3 rounded-lg font-medium transition-colors flex items-center text-lg"
                 >
                   <Zap className="w-5 h-5 mr-2" />
@@ -350,7 +348,7 @@ const App: React.FC = () => {
                 </button>
               )}
               
-              {hasCompressed && !isProcessing && (
+              {hasCompressed && !isProcessing && compressedImages.length > 0 && (
                 <button
                   onClick={reprocessAllImages}
                   className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center"
