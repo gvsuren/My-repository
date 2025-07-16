@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Upload, Download, Image as ImageIcon, Settings, Zap, FileImage, Trash2, Eye, EyeOff, RefreshCw, Pause, Play, X } from 'lucide-react';
+import { Upload, Download, Image as ImageIcon, Settings, Zap, FileImage, Trash2, Eye, EyeOff, RefreshCw, BarChart3 } from 'lucide-react';
 import { 
   compressImage, 
   compressBatch, 
@@ -10,6 +10,7 @@ import {
   getFormatRecommendations,
   CompressionQueue
 } from './components/ImageCompressor';
+import ImagePreview from './components/ImagePreview';
 
 interface ProcessedImage {
   id: string;
@@ -549,17 +550,56 @@ const App: React.FC = () => {
         {/* Results Section */}
         {images.length > 0 && (
           <div className="bg-white rounded-xl shadow-lg p-6">
+            {/* Enhanced Statistics Header */}
+            {compressedImages.length > 0 && (
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <BarChart3 className="w-6 h-6 text-blue-600 mr-3" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800">Compression Summary</h3>
+                      <p className="text-sm text-gray-600">
+                        {compressedImages.length} of {images.length} images processed
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-green-600">
+                      {totalSavings.toFixed(1)}%
+                    </div>
+                    <div className="text-sm text-gray-600">Total Savings</div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-sm text-gray-600">Original Size</div>
+                    <div className="text-lg font-semibold text-gray-800">
+                      {formatFileSize(totalOriginalSize)}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-sm text-gray-600">Compressed Size</div>
+                    <div className="text-lg font-semibold text-blue-600">
+                      {formatFileSize(totalCompressedSize)}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg p-3">
+                    <div className="text-sm text-gray-600">Space Saved</div>
+                    <div className="text-lg font-semibold text-green-600">
+                      {formatFileSize(totalOriginalSize - totalCompressedSize)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-800 flex items-center">
                 <FileImage className="w-5 h-5 mr-2" />
                 Images ({compressedImages.length} compressed / {images.length} total)
               </h2>
               <div className="flex items-center space-x-3">
-                {compressedImages.length > 0 && (
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">Total Savings:</span> {formatFileSize(totalOriginalSize - totalCompressedSize)} ({totalSavings.toFixed(1)}%)
-                  </div>
-                )}
                 <button
                   onClick={downloadAll}
                   disabled={compressedImages.length === 0}
@@ -580,94 +620,12 @@ const App: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {images.map((image) => (
-                <div key={image.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="aspect-video bg-gray-100 relative">
-                    {image.isProcessing ? (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                      </div>
-                    ) : image.preview ? (
-                      <img
-                        src={image.preview}
-                        alt={image.isCompressed ? "Compressed" : "Original"}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <ImageIcon className="w-12 h-12" />
-                      </div>
-                    )}
-                    {image.isProcessing && (
-                      <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
-                        Processing...
-                      </div>
-                    )}
-                    {!image.isCompressed && !image.isProcessing && (
-                      <div className="absolute top-2 right-2 bg-orange-600 text-white px-2 py-1 rounded text-xs font-medium">
-                        Ready to compress
-                      </div>
-                    )}
-                    {image.isCompressed && !image.isProcessing && (
-                      <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
-                        Compressed
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-medium text-gray-800 truncate mb-2">
-                      {image.original.name}
-                    </h3>
-                    {image.isCompressed && image.result && !image.isProcessing && (
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <div className="flex justify-between">
-                          <span>Original:</span>
-                          <span>{formatFileSize(image.original.size)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Compressed:</span>
-                          <span>{formatFileSize(image.result.compressedFile.size)}</span>
-                        </div>
-                        <div className="flex justify-between font-medium text-green-600">
-                          <span>Saved:</span>
-                          <span>{image.result.compressionRatio.toFixed(1)}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Dimensions:</span>
-                          <span>
-                            {image.result.compressedDimensions.width}×{image.result.compressedDimensions.height}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    {!image.isCompressed && !image.isProcessing && (
-                      <div className="text-sm text-gray-600">
-                        <div className="flex justify-between">
-                          <span>Size:</span>
-                          <span>{formatFileSize(image.original.size)}</span>
-                        </div>
-                        <div className="text-orange-600 font-medium mt-2">
-                          Waiting for compression...
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex space-x-2 mt-4">
-                      <button
-                        onClick={() => downloadImage(image)}
-                        disabled={image.isProcessing || !image.isCompressed}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
-                      >
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
-                      </button>
-                      <button
-                        onClick={() => removeImage(image.id)}
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <ImagePreview
+                  key={image.id}
+                  image={image}
+                  onDownload={() => downloadImage(image)}
+                  onRemove={() => removeImage(image.id)}
+                />
               ))}
             </div>
           </div>
@@ -677,7 +635,7 @@ const App: React.FC = () => {
         <div className="text-center mt-8 text-gray-500">
           <p className="flex items-center justify-center">
             <Zap className="w-4 h-4 mr-1" />
-            Advanced image compression with intelligent queue management and manual control
+            Advanced image compression with before/after comparison and visual quality assessment
           </p>
         </div>
       </div>
