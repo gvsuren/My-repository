@@ -155,11 +155,7 @@ const App: React.FC = () => {
   }, [images]);
 
   const handleGetStarted = () => {
-    if (user) {
-      setShowLanding(false);
-    } else {
-      setShowAuthModal(true);
-    }
+    setShowLanding(false);
   };
 
   const handleAuthSuccess = () => {

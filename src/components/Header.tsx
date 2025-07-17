@@ -52,6 +52,13 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
 
           {/* User Section */}
           <div className="flex items-center space-x-4">
+            <button
+              onClick={onAuthClick}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center shadow-lg"
+            >
+              ⭐ Go Premium
+            </button>
+            
             {user ? (
               <div className="relative">
                 <button
@@ -64,6 +71,9 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
                   <span className="text-gray-700 font-medium">
                     {user.email.split('@')[0]}
                   </span>
+                  <span className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs px-2 py-1 rounded-full ml-2">
+                    PRO
+                  </span>
                 </button>
 
                 {/* User Menu */}
@@ -71,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-800">{user.email}</p>
-                      <p className="text-xs text-gray-500">Free Plan</p>
+                      <p className="text-xs text-purple-600 font-medium">Premium Plan</p>
                     </div>
                     
                     <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center">
@@ -96,14 +106,6 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
                   </div>
                 )}
               </div>
-            ) : (
-              <button
-                onClick={onAuthClick}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
-              >
-                <User className="w-4 h-4 mr-2" />
-                Sign In
-              </button>
             )}
           </div>
         </div>

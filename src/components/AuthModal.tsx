@@ -129,7 +129,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <h2 className="text-2xl font-bold text-gray-800">
-            {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
+            {mode === 'signin' ? 'Welcome Back' : 'Upgrade to Premium'}
           </h2>
           <button
             onClick={onClose}
@@ -141,6 +141,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
         {/* Form */}
         <div className="p-6">
+          {/* Premium Benefits */}
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 mb-6">
+            <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
+              ⭐ Premium Features
+            </h3>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Unlimited image compression</li>
+              <li>• Advanced batch processing</li>
+              <li>• Priority processing queue</li>
+              <li>• API access for developers</li>
+              <li>• Team collaboration features</li>
+              <li>• Advanced analytics & reporting</li>
+            </ul>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div>

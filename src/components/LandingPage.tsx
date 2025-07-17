@@ -113,13 +113,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 onClick={onGetStarted}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center"
               >
-                Get Started Free
+                Start Compressing
                 <ArrowRight className="w-5 h-5 ml-2" />
               </button>
               
               <div className="flex items-center text-gray-600">
                 <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                <span>No signup required • Process unlimited images</span>
+                <span>No signup required • Free basic compression</span>
               </div>
             </div>
 
