@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Upload, Download, Image as ImageIcon, Settings, Zap, FileImage, Trash2, Eye, EyeOff, RefreshCw, BarChart3 } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import { isSupabaseConfigured } from './lib/supabase';
 import type { User } from './lib/supabase';
 import LandingPage from './components/LandingPage';
 import AuthModal from './components/AuthModal';
@@ -75,6 +76,11 @@ const App: React.FC = () => {
   // Initialize auth
   useEffect(() => {
     const initAuth = async () => {
+      if (!isSupabaseConfigured) {
+        setLoading(false);
+        return;
+      }
+      
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser({
@@ -88,6 +94,10 @@ const App: React.FC = () => {
     };
 
     initAuth();
+
+    if (!isSupabaseConfigured) {
+      return;
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {

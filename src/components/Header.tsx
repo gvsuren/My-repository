@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ImageIcon, User, LogOut, Settings, BarChart3 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { isSupabaseConfigured } from '../lib/supabase';
 import type { User as UserType } from '../lib/supabase';
 
 interface HeaderProps {
@@ -12,6 +13,11 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleSignOut = async () => {
+    if (!isSupabaseConfigured) {
+      setShowUserMenu(false);
+      return;
+    }
+    
     await supabase.auth.signOut();
     setShowUserMenu(false);
   };
