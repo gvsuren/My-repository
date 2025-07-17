@@ -18,7 +18,12 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
       return;
     }
     
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Continue with sign out even if API call fails
+    }
     setShowUserMenu(false);
   };
 

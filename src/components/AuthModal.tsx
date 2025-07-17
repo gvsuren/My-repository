@@ -62,16 +62,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isSupabaseConfigured) {
-      setError('Authentication is not configured. Please set up Supabase environment variables.');
-      return;
-    }
-    
     if (!validateForm()) return;
 
     setLoading(true);
     setError('');
     setSuccess('');
+
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured) {
+      setError('Authentication is not configured. Please set up Supabase environment variables.');
+      setLoading(false);
+      return;
+    }
 
     try {
       if (mode === 'signup') {
@@ -105,7 +107,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
         }, 1000);
       }
     } catch (error: any) {
-      setError(error.message || 'An error occurred. Please try again.');
+      // Handle network errors and Supabase configuration issues
+      if (error.message?.includes('Failed to fetch') || error.name === 'TypeError') {
+        setError('Unable to connect to authentication service. Please check your internet connection or try again later.');
+      } else if (error.message?.includes('Invalid API key') || error.message?.includes('Invalid URL')) {
+        setError('Authentication service is not properly configured. Please contact support.');
+      } else {
+        setError(error.message || 'An error occurred. Please try again.');
+      }
+      console.error('Authentication error:', error);
     } finally {
       setLoading(false);
     }

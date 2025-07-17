@@ -81,14 +81,19 @@ const App: React.FC = () => {
         return;
       }
       
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser({
-          id: session.user.id,
-          email: session.user.email!,
-          created_at: session.user.created_at
-        });
-        setShowLanding(false);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email!,
+            created_at: session.user.created_at
+          });
+          setShowLanding(false);
+        }
+      } catch (error) {
+        console.error('Failed to initialize auth session:', error);
+        // Continue without authentication if Supabase is unreachable
       }
       setLoading(false);
     };
