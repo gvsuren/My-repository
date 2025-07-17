@@ -1,5 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Upload, Download, Image as ImageIcon, Settings, Zap, FileImage, Trash2, Eye, EyeOff, RefreshCw, BarChart3 } from 'lucide-react';
+import { supabase } from './lib/supabase';
+import type { User } from './lib/supabase';
+import LandingPage from './components/LandingPage';
+import AuthModal from './components/AuthModal';
+import Header from './components/Header';
 import { 
   compressImage, 
   compressBatch, 
@@ -33,6 +38,11 @@ interface QueueStatus {
 }
 
 const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [showLanding, setShowLanding] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
   const [images, setImages] = useState<ProcessedImage[]>([]);
   const [originalFiles, setOriginalFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -61,6 +71,40 @@ const App: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const compressionQueue = useRef(new CompressionQueue());
   const processingStartTime = useRef<number>(0);
+
+  // Initialize auth
+  useEffect(() => {
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          created_at: session.user.created_at
+        });
+        setShowLanding(false);
+      }
+      setLoading(false);
+    };
+
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          created_at: session.user.created_at
+        });
+        setShowLanding(false);
+      } else {
+        setUser(null);
+        setShowLanding(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Enhanced queue status monitoring
   useEffect(() => {
@@ -94,6 +138,19 @@ const App: React.FC = () => {
     const interval = setInterval(updateQueueStatus, 500);
     return () => clearInterval(interval);
   }, [images]);
+
+  const handleGetStarted = () => {
+    if (user) {
+      setShowLanding(false);
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    setShowLanding(false);
+  };
 
   const handleFileSelect = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -289,6 +346,27 @@ const App: React.FC = () => {
     return `${minutes}m ${remainingSeconds}s`;
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (showLanding) {
+    return (
+      <>
+        <LandingPage onGetStarted={handleGetStarted} />
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={handleAuthSuccess}
+        />
+      </>
+    );
+  }
+
   const compressedImages = images.filter(img => img.isCompressed && img.result);
   const uncompressedImages = images.filter(img => !img.isCompressed);
   const totalOriginalSize = compressedImages.reduce((sum, img) => sum + img.original.size, 0);
@@ -297,6 +375,8 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <Header user={user} onAuthClick={() => setShowAuthModal(true)} />
+      
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -342,7 +422,7 @@ const App: React.FC = () => {
               {uncompressedImages.length > 0 && !isProcessing && (
                 <button
                   onClick={startCompression}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-8 py-3 rounded-lg font-medium transition-colors flex items-center text-lg"
+                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors flex items-center text-lg"
                 >
                   <Zap className="w-5 h-5 mr-2" />
                   Compress Images ({uncompressedImages.length})
@@ -639,6 +719,12 @@ const App: React.FC = () => {
           </p>
         </div>
       </div>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };
