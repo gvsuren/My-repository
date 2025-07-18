@@ -106,7 +106,7 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
                   </div>
                 )}
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
