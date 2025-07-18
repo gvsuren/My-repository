@@ -40,7 +40,7 @@ interface QueueStatus {
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [showLanding, setShowLanding] = useState(true);
+  const [showLanding, setShowLanding] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [loading, setLoading] = useState(true);
   
@@ -359,8 +359,8 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -385,24 +385,31 @@ const App: React.FC = () => {
   const totalSavings = totalOriginalSize > 0 ? ((totalOriginalSize - totalCompressedSize) / totalOriginalSize) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <Header user={user} onAuthClick={() => setShowAuthModal(true)} />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
-            <ImageIcon className="w-12 h-12 text-blue-600 mr-3" />
-            <h1 className="text-4xl font-bold text-gray-800">Image Compressor Pro</h1>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-20"></div>
+              <div className="relative bg-gradient-to-r from-indigo-500 to-purple-600 p-3 rounded-2xl">
+                <ImageIcon className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent ml-4">
+              Image Compressor Pro
+            </h1>
           </div>
-          <p className="text-gray-600 text-lg">
-            Upload images, adjust settings, then compress with advanced batch processing
+          <p className="text-slate-600 text-lg max-w-2xl mx-auto leading-relaxed">
+            Professional image compression with real-time quality assessment and advanced batch processing
           </p>
         </div>
 
         {/* Upload Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-8 mb-8">
+          <div className="border-2 border-dashed border-slate-300 rounded-xl p-12 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all duration-300 group">
             <input
               ref={fileInputRef}
               type="file"
@@ -411,17 +418,17 @@ const App: React.FC = () => {
               onChange={(e) => handleFileSelect(e.target.files)}
               className="hidden"
             />
-            <Upload className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            <Upload className="w-16 h-16 text-slate-400 group-hover:text-indigo-500 mx-auto mb-6 transition-colors duration-300" />
+            <h3 className="text-2xl font-semibold text-slate-800 mb-3">
               Drop images here or click to browse
             </h3>
-            <p className="text-gray-500 mb-4">
+            <p className="text-slate-500 mb-6 text-lg">
               Supports JPEG, PNG, WebP, GIF, BMP, and TIFF formats
             </p>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-slate-400 disabled:to-slate-500 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
               {isProcessing ? 'Processing...' : 'Select Images'}
             </button>
@@ -433,7 +440,7 @@ const App: React.FC = () => {
               {uncompressedImages.length > 0 && !isProcessing && (
                 <button
                   onClick={startCompression}
-                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium transition-colors flex items-center text-lg"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <Zap className="w-5 h-5 mr-2" />
                   Compress Images ({uncompressedImages.length})
@@ -443,7 +450,7 @@ const App: React.FC = () => {
               {hasCompressed && !isProcessing && compressedImages.length > 0 && (
                 <button
                   onClick={reprocessAllImages}
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center"
+                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Reprocess All
@@ -454,18 +461,18 @@ const App: React.FC = () => {
 
           {/* Queue Status */}
           {queueStatus.isActive && (
-            <div className="mt-6 bg-blue-50 rounded-lg p-4">
+            <div className="mt-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-blue-900">Batch Processing Queue</h4>
+                <h4 className="font-semibold text-slate-800">Batch Processing Queue</h4>
                 <div className="flex items-center space-x-2">
                   {queueStatus.estimatedTimeRemaining && (
-                    <span className="text-sm text-blue-700">
+                    <span className="text-sm text-slate-600 font-medium">
                       ~{formatTime(queueStatus.estimatedTimeRemaining)} remaining
                     </span>
                   )}
                   <div className="flex items-center space-x-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-blue-700">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-slate-600 font-medium">
                       {queueStatus.activeJobs} active, {queueStatus.queueLength} queued
                     </span>
                   </div>
@@ -473,17 +480,17 @@ const App: React.FC = () => {
               </div>
               
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-blue-800">
+                <span className="text-sm font-semibold text-slate-700">
                   Progress: {queueStatus.completedJobs} / {queueStatus.totalJobs}
                 </span>
-                <span className="text-sm text-blue-600">
+                <span className="text-sm text-slate-600">
                   {batchProgress.currentFile && `Processing: ${batchProgress.currentFile}`}
                 </span>
               </div>
               
-              <div className="w-full bg-blue-200 rounded-full h-3">
+              <div className="w-full bg-slate-200 rounded-full h-3">
                 <div
-                  className="bg-blue-600 h-3 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 h-3 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
                   style={{ width: `${queueStatus.totalJobs > 0 ? (queueStatus.completedJobs / queueStatus.totalJobs) * 100 : 0}%` }}
                 >
                   <span className="text-xs text-white font-medium">
@@ -496,15 +503,15 @@ const App: React.FC = () => {
         </div>
 
         {/* Compression Settings */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-8 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-              <Settings className="w-5 h-5 mr-2" />
+            <h2 className="text-2xl font-bold text-slate-800 flex items-center">
+              <Settings className="w-6 h-6 mr-3 text-indigo-600" />
               Compression Settings
             </h2>
             <button
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center text-blue-600 hover:text-blue-700 transition-colors"
+              className="flex items-center text-indigo-600 hover:text-indigo-700 transition-colors font-medium"
             >
               {showAdvanced ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
               {showAdvanced ? 'Hide' : 'Show'} Advanced
@@ -513,7 +520,7 @@ const App: React.FC = () => {
 
           {/* Presets */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-slate-700 mb-3">
               Quick Presets
             </label>
             <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
@@ -523,8 +530,8 @@ const App: React.FC = () => {
                   onClick={() => handlePresetChange(key as keyof typeof WEB_PRESETS)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     selectedPreset === key
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
                   {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -537,7 +544,7 @@ const App: React.FC = () => {
           {showAdvanced && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Quality: {Math.round(compressionOptions.quality * 100)}%
                 </label>
                 <input
@@ -550,12 +557,12 @@ const App: React.FC = () => {
                     ...prev,
                     quality: parseFloat(e.target.value)
                   }))}
-                  className="slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  className="slider w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Max Width (px)
                 </label>
                 <input
@@ -565,12 +572,12 @@ const App: React.FC = () => {
                     ...prev,
                     maxWidth: parseInt(e.target.value) || 1920
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Max Height (px)
                 </label>
                 <input
@@ -580,12 +587,12 @@ const App: React.FC = () => {
                     ...prev,
                     maxHeight: parseInt(e.target.value) || 1080
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Output Format
                 </label>
                 <select
@@ -594,7 +601,7 @@ const App: React.FC = () => {
                     ...prev,
                     format: e.target.value
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                 >
                   <option value="">Keep Original</option>
                   <option value="image/jpeg">JPEG</option>
@@ -612,9 +619,9 @@ const App: React.FC = () => {
                     ...prev,
                     progressive: e.target.checked
                   }))}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500"
                 />
-                <label htmlFor="progressive" className="ml-2 text-sm font-medium text-gray-700">
+                <label htmlFor="progressive" className="ml-2 text-sm font-semibold text-slate-700">
                   Progressive JPEG
                 </label>
               </div>
@@ -628,9 +635,9 @@ const App: React.FC = () => {
                     ...prev,
                     optimizeForWeb: e.target.checked
                   }))}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 rounded focus:ring-indigo-500"
                 />
-                <label htmlFor="webOptimized" className="ml-2 text-sm font-medium text-gray-700">
+                <label htmlFor="webOptimized" className="ml-2 text-sm font-semibold text-slate-700">
                   Optimize for Web
                 </label>
               </div>
@@ -640,16 +647,16 @@ const App: React.FC = () => {
 
         {/* Results Section */}
         {images.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-8">
             {/* Enhanced Statistics Header */}
             {compressedImages.length > 0 && (
-              <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-4 mb-6">
+              <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-emerald-50 rounded-xl p-6 mb-8 border border-indigo-100">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <BarChart3 className="w-6 h-6 text-blue-600 mr-3" />
+                    <BarChart3 className="w-7 h-7 text-indigo-600 mr-4" />
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-800">Compression Summary</h3>
-                      <p className="text-sm text-gray-600">
+                      <h3 className="text-xl font-bold text-slate-800">Compression Summary</h3>
+                      <p className="text-sm text-slate-600">
                         {compressedImages.length} of {images.length} images processed
                       </p>
                     </div>
@@ -658,26 +665,26 @@ const App: React.FC = () => {
                     <div className="text-2xl font-bold text-green-600">
                       {totalSavings.toFixed(1)}%
                     </div>
-                    <div className="text-sm text-gray-600">Total Savings</div>
+                    <div className="text-sm text-slate-600 font-medium">Total Savings</div>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                  <div className="bg-white rounded-lg p-3">
-                    <div className="text-sm text-gray-600">Original Size</div>
-                    <div className="text-lg font-semibold text-gray-800">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
+                    <div className="text-sm text-slate-600 font-medium">Original Size</div>
+                    <div className="text-lg font-bold text-slate-800">
                       {formatFileSize(totalOriginalSize)}
                     </div>
                   </div>
-                  <div className="bg-white rounded-lg p-3">
-                    <div className="text-sm text-gray-600">Compressed Size</div>
-                    <div className="text-lg font-semibold text-blue-600">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
+                    <div className="text-sm text-slate-600 font-medium">Compressed Size</div>
+                    <div className="text-lg font-bold text-indigo-600">
                       {formatFileSize(totalCompressedSize)}
                     </div>
                   </div>
-                  <div className="bg-white rounded-lg p-3">
-                    <div className="text-sm text-gray-600">Space Saved</div>
-                    <div className="text-lg font-semibold text-green-600">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-slate-200/50">
+                    <div className="text-sm text-slate-600 font-medium">Space Saved</div>
+                    <div className="text-lg font-bold text-emerald-600">
                       {formatFileSize(totalOriginalSize - totalCompressedSize)}
                     </div>
                   </div>
@@ -686,22 +693,22 @@ const App: React.FC = () => {
             )}
 
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                <FileImage className="w-5 h-5 mr-2" />
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center">
+                <FileImage className="w-6 h-6 mr-3 text-indigo-600" />
                 Images ({compressedImages.length} compressed / {images.length} total)
               </h2>
               <div className="flex items-center space-x-3">
                 <button
                   onClick={downloadAll}
                   disabled={compressedImages.length === 0}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-400 disabled:to-slate-500 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download All ({compressedImages.length})
                 </button>
                 <button
                   onClick={clearAll}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                  className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Clear All
@@ -723,10 +730,10 @@ const App: React.FC = () => {
         )}
 
         {/* Footer */}
-        <div className="text-center mt-8 text-gray-500">
-          <p className="flex items-center justify-center">
+        <div className="text-center mt-12 text-slate-500">
+          <p className="flex items-center justify-center text-lg">
             <Zap className="w-4 h-4 mr-1" />
-            Advanced image compression with before/after comparison and visual quality assessment
+            Professional image compression with real-time quality assessment
           </p>
         </div>
       </div>

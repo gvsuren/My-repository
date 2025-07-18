@@ -355,34 +355,34 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
 
   return (
     <>
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
         {renderComparisonView()}
         
         {/* Status Badge */}
         {image.isProcessing && (
-          <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
             Processing...
           </div>
         )}
         {!image.isCompressed && !image.isProcessing && (
-          <div className="absolute top-2 right-2 bg-orange-600 text-white px-2 py-1 rounded text-xs font-medium">
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
             Ready to compress
           </div>
         )}
         {image.isCompressed && !image.isProcessing && (
-          <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
             Compressed
           </div>
         )}
 
         {/* View Mode Controls */}
         {image.isCompressed && image.result && (
-          <div className="absolute top-2 left-2 flex space-x-1">
+          <div className="absolute top-3 left-3 flex space-x-1">
             <button
               onClick={() => setViewMode('side-by-side')}
               className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                 viewMode === 'side-by-side' 
-                  ? 'bg-white text-gray-800' 
+                  ? 'bg-white text-slate-800 shadow-lg' 
                   : 'bg-black bg-opacity-50 text-white hover:bg-opacity-75'
               }`}
             >
@@ -392,7 +392,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
               onClick={() => setViewMode('overlay')}
               className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                 viewMode === 'overlay' 
-                  ? 'bg-white text-gray-800' 
+                  ? 'bg-white text-slate-800 shadow-lg' 
                   : 'bg-black bg-opacity-50 text-white hover:bg-opacity-75'
               }`}
             >
@@ -402,7 +402,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
               onClick={() => setViewMode('single')}
               className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                 viewMode === 'single' 
-                  ? 'bg-white text-gray-800' 
+                  ? 'bg-white text-slate-800 shadow-lg' 
                   : 'bg-black bg-opacity-50 text-white hover:bg-opacity-75'
               }`}
             >
@@ -411,8 +411,8 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
           </div>
         )}
 
-        <div className="p-4">
-          <h3 className="font-medium text-gray-800 truncate mb-3">
+        <div className="p-6">
+          <h3 className="font-semibold text-slate-800 truncate mb-4 text-lg">
             {image.original.name}
           </h3>
 
@@ -420,45 +420,45 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
           {image.isCompressed && image.result && !image.isProcessing && (
             <div className="space-y-3 mb-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="text-gray-600 text-xs uppercase tracking-wide mb-1">Original</div>
-                  <div className="font-semibold text-gray-800">{formatFileSize(image.original.size)}</div>
-                  <div className="text-xs text-gray-500">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/50">
+                  <div className="text-slate-600 text-xs uppercase tracking-wide mb-1 font-semibold">Original</div>
+                  <div className="font-bold text-slate-800">{formatFileSize(image.original.size)}</div>
+                  <div className="text-xs text-slate-500">
                     {image.result.originalDimensions.width}×{image.result.originalDimensions.height}
                   </div>
                 </div>
-                <div className="bg-green-50 p-3 rounded-lg">
-                  <div className="text-green-600 text-xs uppercase tracking-wide mb-1">Compressed</div>
-                  <div className="font-semibold text-green-800">{formatFileSize(image.result.compressedFile.size)}</div>
-                  <div className="text-xs text-green-600">
+                <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200/50">
+                  <div className="text-emerald-600 text-xs uppercase tracking-wide mb-1 font-semibold">Compressed</div>
+                  <div className="font-bold text-emerald-800">{formatFileSize(image.result.compressedFile.size)}</div>
+                  <div className="text-xs text-emerald-600">
                     {image.result.compressedDimensions.width}×{image.result.compressedDimensions.height}
                   </div>
                 </div>
               </div>
 
-              <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-xl border border-indigo-200/50">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-blue-600 text-xs uppercase tracking-wide">Savings</span>
-                  <span className="text-blue-800 font-bold text-lg">
+                  <span className="text-indigo-600 text-xs uppercase tracking-wide font-semibold">Savings</span>
+                  <span className="text-indigo-800 font-bold text-lg">
                     {image.result.compressionRatio.toFixed(1)}%
                   </span>
                 </div>
-                <div className="w-full bg-blue-200 rounded-full h-2">
+                <div className="w-full bg-slate-200 rounded-full h-2">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${Math.min(100, image.result.compressionRatio)}%` }}
                   ></div>
                 </div>
-                <div className="text-xs text-blue-600 mt-1">
+                <div className="text-xs text-indigo-600 mt-1 font-medium">
                   Saved {formatFileSize(image.original.size - image.result.compressedFile.size)}
                 </div>
               </div>
 
               {/* Quality Assessment */}
               {qualityMetrics && (
-                <div className="bg-gray-50 p-3 rounded-lg">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/50">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-600 text-xs uppercase tracking-wide">Visual Quality</span>
+                    <span className="text-slate-600 text-xs uppercase tracking-wide font-semibold">Visual Quality</span>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${getOverallQualityColor(qualityMetrics.overallQuality)}`}>
                       {qualityMetrics.overallQuality}
                     </span>
@@ -494,9 +494,9 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
               )}
 
               {isAnalyzing && (
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="flex items-center justify-center text-gray-600">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/50">
+                  <div className="flex items-center justify-center text-slate-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600 mr-2"></div>
                     Analyzing image quality...
                   </div>
                 </div>
@@ -505,12 +505,12 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
           )}
 
           {!image.isCompressed && !image.isProcessing && (
-            <div className="text-sm text-gray-600 mb-4">
+            <div className="text-sm text-slate-600 mb-4">
               <div className="flex justify-between mb-2">
                 <span>Size:</span>
                 <span>{formatFileSize(image.original.size)}</span>
               </div>
-              <div className="text-orange-600 font-medium">
+              <div className="text-amber-600 font-semibold">
                 Waiting for compression...
               </div>
             </div>
@@ -520,7 +520,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
           <div className="flex space-x-2">
             <button
               onClick={() => setShowModal(true)}
-              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+              className="flex-1 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center"
             >
               <Maximize2 className="w-4 h-4 mr-1" />
               Preview
@@ -528,14 +528,14 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ image, onDownload, onRemove
             <button
               onClick={onDownload}
               disabled={image.isProcessing || !image.isCompressed}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+              className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-slate-400 disabled:to-slate-500 text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center"
             >
               <Download className="w-4 h-4 mr-1" />
               Download
             </button>
             <button
               onClick={onRemove}
-              className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
             >
               <Trash2 className="w-4 h-4" />
             </button>

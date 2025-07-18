@@ -124,29 +124,29 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-md relative border border-slate-200/50">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-800">
+        <div className="flex items-center justify-between p-6 border-b border-slate-100">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
             {mode === 'signin' ? 'Welcome Back' : 'Upgrade to Premium'}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
 
         {/* Form */}
         <div className="p-6">
           {/* Premium Benefits */}
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
+          <div className="bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 rounded-xl p-5 mb-6 border border-indigo-100">
+            <h3 className="font-bold text-slate-800 mb-3 flex items-center text-lg">
               ⭐ Premium Features
             </h3>
-            <ul className="text-sm text-gray-600 space-y-1">
+            <ul className="text-sm text-slate-600 space-y-2 font-medium">
               <li>• Unlimited image compression</li>
               <li>• Advanced batch processing</li>
               <li>• Priority processing queue</li>
@@ -159,16 +159,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your email"
                   required
                 />
@@ -177,23 +177,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className="w-full pl-10 pr-12 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -203,23 +203,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
             {/* Confirm Password Field (Sign Up Only) */}
             {mode === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full pl-10 pr-12 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                     placeholder="Confirm your password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -229,7 +229,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
             {/* Error Message */}
             {error && (
-              <div className="flex items-center p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center p-4 bg-red-50 border border-red-200 rounded-xl">
                 <AlertCircle className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" />
                 <span className="text-red-700 text-sm">{error}</span>
               </div>
@@ -237,7 +237,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
             {/* Success Message */}
             {success && (
-              <div className="flex items-center p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="flex items-center p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
                 <CheckCircle className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
                 <span className="text-green-700 text-sm">{success}</span>
               </div>
@@ -247,7 +247,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg font-semibold transition-colors flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-slate-400 disabled:to-slate-500 text-white py-4 rounded-xl font-bold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -262,11 +262,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
           {/* Mode Switch */}
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-slate-600">
               {mode === 'signin' ? "Don't have an account?" : "Already have an account?"}
               <button
                 onClick={() => handleModeSwitch(mode === 'signin' ? 'signup' : 'signin')}
-                className="ml-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+                className="ml-2 text-indigo-600 hover:text-indigo-700 font-bold transition-colors"
               >
                 {mode === 'signin' ? 'Sign Up' : 'Sign In'}
               </button>
@@ -274,8 +274,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
           </div>
 
           {/* Privacy Note */}
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-blue-700 text-xs text-center">
+          <div className="mt-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+            <p className="text-indigo-700 text-xs text-center font-medium">
               🔒 Your images are processed locally in your browser. We never store or access your files.
             </p>
           </div>
