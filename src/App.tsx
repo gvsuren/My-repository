@@ -730,27 +730,30 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Footer */}
-        {/* Footer Ad Banner */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 mb-8">
-          <div className="text-center mb-4">
-            <span className="text-xs text-slate-500 uppercase tracking-wide font-medium">Advertisement</span>
-          </div>
-          <div className="flex justify-center">
-            <div className="max-w-4xl w-full">
-              <AdUnit 
-                slot="9829278545"
-                className="footer-ad"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="text-center mt-12 text-slate-500">
+        {/* Footer Content */}
+        <div className="text-center mt-16 text-slate-500">
           <p className="flex items-center justify-center text-lg">
             <Zap className="w-4 h-4 mr-1" />
             Professional image compression with real-time quality assessment
           </p>
+        </div>
+        
+        {/* Footer Ad Banner - Separated */}
+        <div className="mt-12 mb-8">
+          <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-200/30">
+            <div className="text-center mb-3">
+              <span className="text-xs text-slate-400 uppercase tracking-wide">Advertisement</span>
+            </div>
+            <div className="flex justify-center">
+              <div className="max-w-3xl w-full">
+                <AdUnit 
+                  slot="9829278545"
+                  className="footer-ad"
+                  style={{ minHeight: '90px', maxHeight: '120px' }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

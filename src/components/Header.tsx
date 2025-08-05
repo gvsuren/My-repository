@@ -132,6 +132,18 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
       </div>
     </header>
   );
-};
-
-export default Header;
+    {/* Header Ad Banner - Compact */}
+    <div className="bg-slate-50/80 border-b border-slate-200/30 py-2">
+      <div className="container mx-auto px-4 flex justify-center">
+        <div className="max-w-2xl w-full">
+          <div className="text-center mb-1">
+            <span className="text-xs text-slate-400 uppercase tracking-wide">Advertisement</span>
+          </div>
+          <AdUnit 
+            slot="9829278545"
+            className="header-ad"
+            style={{ minHeight: '60px', maxHeight: '90px' }}
+          />
+        </div>
+      </div>
+    </div>
