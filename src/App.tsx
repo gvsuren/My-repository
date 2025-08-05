@@ -6,6 +6,7 @@ import type { User } from './lib/supabase';
 import LandingPage from './components/LandingPage';
 import AuthModal from './components/AuthModal';
 import Header from './components/Header';
+import AdUnit from './components/AdUnit';
 import { 
   compressImage, 
   compressBatch, 
@@ -730,6 +731,21 @@ const App: React.FC = () => {
         )}
 
         {/* Footer */}
+        {/* Footer Ad Banner */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-6 mb-8">
+          <div className="text-center mb-4">
+            <span className="text-xs text-slate-500 uppercase tracking-wide font-medium">Advertisement</span>
+          </div>
+          <div className="flex justify-center">
+            <div className="max-w-4xl w-full">
+              <AdUnit 
+                slot="9829278545"
+                className="footer-ad"
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="text-center mt-12 text-slate-500">
           <p className="flex items-center justify-center text-lg">
             <Zap className="w-4 h-4 mr-1" />

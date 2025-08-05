@@ -3,6 +3,7 @@ import { ImageIcon, User, LogOut, Settings, BarChart3 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { isSupabaseConfigured } from '../lib/supabase';
 import type { User as UserType } from '../lib/supabase';
+import AdUnit from './AdUnit';
 
 interface HeaderProps {
   user: UserType | null;
@@ -114,6 +115,18 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
                 )}
               </div>
             ) : null}
+          </div>
+        </div>
+      </div>
+      
+      {/* Header Ad Banner */}
+      <div className="bg-slate-50 border-b border-slate-200/50 py-3">
+        <div className="container mx-auto px-4 flex justify-center">
+          <div className="max-w-4xl w-full">
+            <AdUnit 
+              slot="9829278545"
+              className="header-ad"
+            />
           </div>
         </div>
       </div>
