@@ -147,3 +147,4 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
         </div>
       </div>
     </div>
+}
