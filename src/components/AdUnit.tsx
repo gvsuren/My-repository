@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface AdUnitProps {
   slot: string;
@@ -21,13 +21,23 @@ const AdUnit: React.FC<AdUnitProps> = ({
   style = { display: 'block' },
   className = ""
 }) => {
+  const adInitialized = useRef(false);
+
   useEffect(() => {
+    // Prevent double initialization in React StrictMode
+    if (adInitialized.current) {
+      return;
+    }
+
     try {
       // Initialize adsbygoogle array if it doesn't exist
       window.adsbygoogle = window.adsbygoogle || [];
       
       // Push the ad configuration
       window.adsbygoogle.push({});
+      
+      // Mark as initialized
+      adInitialized.current = true;
     } catch (error) {
       console.error('AdSense error:', error);
     }
