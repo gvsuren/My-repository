@@ -133,3 +133,4 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
     </header>
   )
 }
+Uncaught SyntaxError: The requested module '/src/components/Header.tsx?t=1757249947478' does not provide an export named 'default'
