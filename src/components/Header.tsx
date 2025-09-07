@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ImageIcon, User, LogOut, Settings, BarChart3 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { isSupabaseConfigured } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { User as UserType } from '../lib/supabase';
 
 interface HeaderProps {
@@ -17,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
       setShowUserMenu(false);
       return;
     }
-    
+
     try {
       await supabase.auth.signOut();
     } catch (error) {
@@ -46,13 +45,22 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">
+            <a
+              href="#features"
+              className="text-slate-600 hover:text-indigo-600 transition-colors font-medium"
+            >
               Features
             </a>
-            <a href="#pricing" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">
+            <a
+              href="#pricing"
+              className="text-slate-600 hover:text-indigo-600 transition-colors font-medium"
+            >
               Pricing
             </a>
-            <a href="#support" className="text-slate-600 hover:text-indigo-600 transition-colors font-medium">
+            <a
+              href="#support"
+              className="text-slate-600 hover:text-indigo-600 transition-colors font-medium"
+            >
               Support
             </a>
           </nav>
@@ -65,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
             >
               ⭐ Go Premium
             </button>
-            
+
             {user ? (
               <div className="relative">
                 <button
@@ -76,7 +84,7 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
                     <User className="w-4 h-4 text-white" />
                   </div>
                   <span className="text-slate-700 font-semibold">
-                    {user.email.split('@')[0]}
+                    {user?.email?.split('@')[0] ?? 'Guest'}
                   </span>
                   <span className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs px-2.5 py-1 rounded-full ml-2 font-semibold">
                     PRO
@@ -87,20 +95,24 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-52 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-slate-200/50 py-2 z-50">
                     <div className="px-4 py-3 border-b border-slate-100">
-                      <p className="text-sm font-semibold text-slate-800">{user.email}</p>
-                      <p className="text-xs text-purple-600 font-semibold">Premium Plan</p>
+                      <p className="text-sm font-semibold text-slate-800">
+                        {user?.email}
+                      </p>
+                      <p className="text-xs text-purple-600 font-semibold">
+                        Premium Plan
+                      </p>
                     </div>
-                    
+
                     <button className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center font-medium transition-colors">
                       <BarChart3 className="w-4 h-4 mr-2" />
                       Usage Statistics
                     </button>
-                    
+
                     <button className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 flex items-center font-medium transition-colors">
                       <Settings className="w-4 h-4 mr-2" />
                       Account Settings
                     </button>
-                    
+
                     <div className="border-t border-slate-100 mt-2 pt-2">
                       <button
                         onClick={handleSignOut}
@@ -113,9 +125,12 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
                   </div>
                 )}
               </div>
-            )
-            }
+            ) : null}
+          </div>
+        </div>
+      </div>
     </header>
-  )
-}
+  );
+};
+
 export default Header;
