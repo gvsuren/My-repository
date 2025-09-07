@@ -6,7 +6,6 @@ import type { User } from './lib/supabase';
 import LandingPage from './components/LandingPage';
 import AuthModal from './components/AuthModal';
 import Header from './components/Header';
-import AdUnit from './components/AdUnit';
 import { 
   compressImage, 
   compressBatch, 
@@ -736,24 +735,6 @@ const App: React.FC = () => {
             <Zap className="w-4 h-4 mr-1" />
             Professional image compression with real-time quality assessment
           </p>
-        </div>
-        
-        {/* Footer Ad Banner - Separated */}
-        <div className="mt-12 mb-8">
-          <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-200/30">
-            <div className="text-center mb-3">
-              <span className="text-xs text-slate-400 uppercase tracking-wide">Advertisement</span>
-            </div>
-            <div className="flex justify-center">
-              <div className="max-w-3xl w-full">
-                <AdUnit 
-                  slot="9829278545"
-                  className="footer-ad"
-                  style={{ minHeight: '90px', maxHeight: '120px' }}
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
