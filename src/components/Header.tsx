@@ -133,4 +133,3 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick }) => {
     </header>
   )
 }
-export default Header;
